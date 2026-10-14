@@ -1,0 +1,9 @@
+# 用法: conda env create -f environment.yml   (会创建名为 bdd 的环境)
+name: bdd
+channels:
+  - conda-forge
+dependencies:
+  - python=3.10
+  - pip
+  - pip:
+      - -r requirements.txt   # Python 包统一用 pip 装, 版本信息只维护在 requirements.txt 一处

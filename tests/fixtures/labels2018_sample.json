@@ -1,0 +1,20 @@
+[
+  {
+    "name": "frame_a.jpg",
+    "attributes": {"weather": "clear", "timeofday": "daytime", "scene": "city street"},
+    "labels": [
+      {"category": "person", "box2d": {"x1": 100.0, "y1": 200.0, "x2": 140.0, "y2": 300.0},
+       "attributes": {"occluded": false, "truncated": false}},
+      {"category": "lane", "poly2d": [{"vertices": [[0, 700], [600, 400]], "types": "LL", "closed": false}]},
+      {"category": "person", "poly2d": [{"vertices": [[1, 1], [2, 2]], "types": "LL", "closed": false}]}
+    ]
+  },
+  {
+    "name": "frame_b.jpg",
+    "attributes": {"weather": "rainy", "timeofday": "night", "scene": "highway"},
+    "labels": [
+      {"category": "person", "box2d": {"x1": 600.0, "y1": 100.0, "x2": 760.0, "y2": 500.0},
+       "attributes": {"occluded": false, "truncated": false}}
+    ]
+  }
+]

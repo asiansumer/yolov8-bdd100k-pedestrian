@@ -1,0 +1,16 @@
+# YOLOv8s 训练超参数 (与论文一致: lr0=0.001, batch=8)
+# 这里的键名会原样传给 ultralytics 的 YOLO(...).train(**kwargs)
+model: yolov8s.pt      # COCO 预训练权重, 第一次运行会自动下载
+epochs: 30             # 论文只训了 10 轮, 本仓库计划 >= 30 轮
+imgsz: 640
+batch: 8
+optimizer: SGD         # 必须显式写 SGD: 默认 "auto" 会自己挑优化器和学习率, 下面的 lr0 就不生效了
+lr0: 0.001
+momentum: 0.937
+weight_decay: 0.0005
+nbs: 64                # "名义 batch": Ultralytics 会累积梯度直到凑够约 64 张图才更新一次参数,
+                       # 所以 batch=8 时实际是每 8 个 batch 更新一次 (梯度累积), 这是面试常考点
+close_mosaic: 10       # 最后 10 轮关闭 mosaic 增强。注意: 若总共只训 10 轮, mosaic 从第 0 轮就被关掉了!
+patience: 50           # 早停耐心值; 30 轮内基本不会触发, 保证每轮 results.csv 都完整
+seed: 0
+deterministic: true

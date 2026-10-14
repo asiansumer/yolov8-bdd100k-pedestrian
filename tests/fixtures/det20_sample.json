@@ -1,0 +1,23 @@
+[
+  {
+    "name": "frame_a.jpg",
+    "attributes": {"weather": "clear", "timeofday": "daytime", "scene": "city street"},
+    "labels": [
+      {"category": "pedestrian", "box2d": {"x1": 100.0, "y1": 200.0, "x2": 140.0, "y2": 300.0},
+       "attributes": {"occluded": false, "truncated": false}},
+      {"category": "car", "box2d": {"x1": 500.0, "y1": 300.0, "x2": 700.0, "y2": 450.0},
+       "attributes": {"occluded": false, "truncated": false}},
+      {"category": "rider", "box2d": {"x1": 800.0, "y1": 300.0, "x2": 840.0, "y2": 380.0},
+       "attributes": {"occluded": false, "truncated": false}},
+      {"category": "pedestrian", "box2d": {"x1": 1250.0, "y1": 600.0, "x2": 1300.0, "y2": 760.0},
+       "attributes": {"occluded": true, "truncated": true}},
+      {"category": "pedestrian", "box2d": {"x1": 50.0, "y1": 50.0, "x2": 50.0, "y2": 90.0},
+       "attributes": {"occluded": false, "truncated": false}}
+    ]
+  },
+  {
+    "name": "frame_b.jpg",
+    "attributes": {"weather": "rainy", "timeofday": "night", "scene": "highway"},
+    "labels": null
+  }
+]

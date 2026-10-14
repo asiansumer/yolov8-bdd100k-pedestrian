@@ -1,0 +1,17 @@
+# YOLOv8m 训练超参数
+# 注意(假设): 论文没有写 v8m 的 lr0 和 batch, 这里取 s 与 l 之间的值: lr0=0.0007, batch=6。
+# 如果要和论文严格对比, 需要在 README 中注明这是本仓库的假设。
+model: yolov8m.pt
+epochs: 30
+imgsz: 640
+batch: 6
+optimizer: SGD
+lr0: 0.0007
+momentum: 0.937
+weight_decay: 0.0005
+nbs: 64                # "名义 batch": Ultralytics 会累积梯度直到凑够约 64 张图才更新一次参数,
+                       # 所以 batch=6 时实际约每 11 个 batch (64/6≈11) 更新一次 (梯度累积), 这是面试常考点
+close_mosaic: 10       # 最后 10 轮关闭 mosaic 增强。注意: 若总共只训 10 轮, mosaic 从第 0 轮就被关掉了!
+patience: 50
+seed: 0
+deterministic: true

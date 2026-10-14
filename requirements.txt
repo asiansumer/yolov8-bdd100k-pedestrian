@@ -1,0 +1,9 @@
+# 与论文一致, 固定 Ultralytics 版本 (不同版本的默认超参数/增强可能不同, 会影响可复现性)
+ultralytics==8.3.139
+# PyTorch 不硬性固定版本: 论文用的是 2.8 开发版, 这里装 pip 上最新的稳定版即可 (Apple 芯片自带 MPS 支持)。
+# 训练前请记下实际版本: python -c "import torch; print(torch.__version__)", 填到 README 结果表里。
+torch
+torchvision
+# 只用于运行 tests/ 下的单元测试
+pytest
+# matplotlib / pillow / pyyaml / numpy 都会作为 ultralytics 的依赖自动安装, 无需单独列出

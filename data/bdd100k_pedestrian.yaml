@@ -1,0 +1,15 @@
+# Ultralytics 数据集配置: BDD100K 单类行人
+#
+# 关于路径:
+#   - path 写的是"相对于仓库根目录"的路径, 即 <repo>/datasets/bdd100k_pedestrian
+#     (由 scripts/convert_bdd_to_yolo.py 的 --out-dir 生成)。
+#   - scripts/train.py 等脚本运行前会调用 common.resolve_data_yaml() 把它转成绝对路径,
+#     因为 Ultralytics 对相对 path 可能会去 ~/datasets (它的 datasets_dir 设置) 下找。
+#   - train / val 是相对于 path 的子目录。Ultralytics 会自动把路径里的 /images/ 换成 /labels/
+#     来找标签, 所以 images/ 与 labels/ 必须是"兄弟"目录, 这正是转换脚本生成的结构。
+path: datasets/bdd100k_pedestrian
+train: images/train
+val: images/val
+
+names:
+  0: pedestrian
