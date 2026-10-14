@@ -4,6 +4,8 @@
 检查: 坐标换算、类别过滤、越界裁剪、退化框丢弃、labels 为 None、poly2d 跳过、元数据 CSV。
 """
 import csv
+import importlib
+import os
 import sys
 from pathlib import Path
 
@@ -11,7 +13,8 @@ import pytest
 from PIL import Image
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts"))
-import convert_bdd_to_yolo as conv  # noqa: E402
+# 默认测试正式脚本; 设置环境变量 CONV_MODULE=bdd_core 可以只测试核心函数
+conv = importlib.import_module(os.environ.get("CONV_MODULE", "convert_bdd_to_yolo"))
 
 FIX = Path(__file__).parent / "fixtures"
 CATS = {"pedestrian", "person"}
@@ -61,6 +64,7 @@ def test_2018_format_person_and_poly2d():
     assert conv.frame_to_yolo(frames[0], {"pedestrian"}, 1280, 720) == ([], [])
 
 
+@pytest.mark.skipif(not hasattr(conv, "main"), reason="练习版只实现了核心函数, 没有 main")
 def test_main_end_to_end(tmp_path):
     img_dir = tmp_path / "raw"
     img_dir.mkdir()

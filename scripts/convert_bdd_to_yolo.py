@@ -16,65 +16,16 @@
 """
 import argparse
 import csv
-import json
 import shutil
 from pathlib import Path
 
 from PIL import Image
 
+from bdd_core import box_to_yolo, frame_to_yolo, load_frames, size_bucket  # 核心转换逻辑在 bdd_core.py
+
 DEFAULT_W, DEFAULT_H = 1280, 720  # BDD100K 所有图片都是 1280x720, 读不到尺寸时用这个兜底
-SMALL_AREA = 32 * 32  # COCO 的大小目标阈值: 面积 < 32² 为小目标
-MEDIUM_AREA = 96 * 96  # 32² ~ 96² 为中目标, >= 96² 为大目标
 META_FIELDS = ["image", "weather", "timeofday", "scene", "width", "height",
                "num_ped", "num_small", "num_medium", "num_large"]
-
-
-def size_bucket(area: float) -> str:
-    """按 COCO 规则把框面积(原图像素)分到 small / medium / large。"""
-    if area < SMALL_AREA:
-        return "small"
-    if area < MEDIUM_AREA:
-        return "medium"
-    return "large"
-
-
-def box_to_yolo(x1, y1, x2, y2, img_w, img_h):
-    """把左上/右下角坐标转成 YOLO 的归一化 (cx, cy, w, h)。
-
-    先裁剪到图像范围内(标注偶尔会越界一两个像素), 裁完宽或高 <= 0 的退化框返回 None。
-    """
-    x1, x2 = max(0.0, min(x1, img_w)), max(0.0, min(x2, img_w))
-    y1, y2 = max(0.0, min(y1, img_h)), max(0.0, min(y2, img_h))
-    w, h = x2 - x1, y2 - y1
-    if w <= 0 or h <= 0:
-        return None
-    # YOLO 要的是"中心点 + 宽高", 并且都除以图像尺寸, 这样与输入分辨率无关
-    return ((x1 + x2) / 2 / img_w, (y1 + y2) / 2 / img_h, w / img_w, h / img_h)
-
-
-def frame_to_yolo(frame: dict, categories: set, img_w: int, img_h: int):
-    """处理一帧: 返回 (YOLO 标签行列表, 每个框的面积列表)。"""
-    lines, areas = [], []
-    # det_20 里没有目标的帧, labels 可能缺失或为 None, 用 "or []" 统一处理
-    for label in frame.get("labels") or []:
-        if label.get("category") not in categories:
-            continue
-        box = label.get("box2d")
-        if not box:  # 老格式里 poly2d 标注没有 box2d, 直接跳过
-            continue
-        yolo = box_to_yolo(box["x1"], box["y1"], box["x2"], box["y2"], img_w, img_h)
-        if yolo is None:
-            continue
-        lines.append("0 " + " ".join(f"{v:.6f}" for v in yolo))  # 只有一类, 类别号固定为 0
-        # 面积在"原图像素"上算(不是归一化后), 这样才能和 COCO 的 32²/96² 阈值对应
-        areas.append(yolo[2] * img_w * yolo[3] * img_h)
-    return lines, areas
-
-
-def load_frames(json_path: Path) -> list:
-    """读取 BDD100K 标注 JSON, 两种格式最外层都是"帧"的列表。"""
-    with open(json_path, "r", encoding="utf-8") as f:
-        return json.load(f)
 
 
 def image_size(path: Path):
