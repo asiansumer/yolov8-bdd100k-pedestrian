@@ -1,0 +1,17 @@
+group,value,num_images,num_ped,mAP50,mAP50-95,recall
+all,all,10000,13262,0.691,0.368,0.6131
+timeofday,dawn/dusk,778,1046,0.6756,0.3567,0.5887
+timeofday,daytime,5258,9366,0.7069,0.3791,0.6262
+timeofday,night,3929,2843,0.6444,0.3351,0.5783
+timeofday,undefined,35,7,0.869,0.5497,0.8448
+weather,clear,5346,4935,0.6758,0.3582,0.5975
+weather,overcast,1239,1916,0.706,0.3836,0.6349
+weather,partly cloudy,738,1034,0.6736,0.3539,0.587
+weather,rainy,738,822,0.6471,0.3454,0.5608
+weather,snowy,769,1137,0.7325,0.4018,0.6799
+weather,undefined,1157,3414,0.7088,0.3741,0.6216
+crowd,crowded,351,5255,0.7043,0.3556,0.6114
+crowd,not_crowded,9649,8007,0.687,0.3795,0.615
+size,small,10000,6399,0.4561,,0.7561
+size,medium,10000,6108,0.8541,,0.9651
+size,large,10000,755,0.9455,,0.9801
