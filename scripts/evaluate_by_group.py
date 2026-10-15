@@ -43,11 +43,16 @@ def run_val(model, data_yaml: Path, args) -> dict:
     return {"mAP50": round(m.box.map50, 4), "mAP50-95": round(m.box.map, 4), "recall": round(m.box.mr, 4)}
 
 
-def eval_by_size(model, image_paths: list, label_dir: Path, args) -> list:
+def eval_by_size(model, image_paths: list, label_dir: Path, args, tmp_dir: Path) -> list:
     """逐张预测 + 与真值匹配, 最后按大小汇总 AP50。"""
     all_records, total_gt = [], defaultdict(int)
+    # 把图片路径写进 txt 再交给 predict: 如果直接传 Python 列表, Ultralytics 会先把列表里的
+    # 每张图都用 PIL 打开, 1 万张图同时打开会超过系统允许的文件数 (Too many open files)。
+    # 传 txt 文件时它会逐张读取。
+    src = tmp_dir / "size_eval_images.txt"
+    src.write_text("\n".join(str(p) for p in image_paths) + "\n")
     # conf 设得很低 (0.001), 和 val 一致: 算 AP 需要完整的 P-R 曲线, 不能提前把低分框砍掉
-    results = model.predict(source=[str(p) for p in image_paths], stream=True, conf=0.001,
+    results = model.predict(source=str(src), stream=True, conf=0.001,
                             iou=0.7, imgsz=args.imgsz, device=args.device, verbose=False)
     # 注意: Ultralytics 会把传入的图片列表重新排序, 所以不能用 zip(image_paths, results) 对齐,
     # 而要用每个结果自带的 r.path 找到对应的标签文件
@@ -117,7 +122,7 @@ def main():
 
     if not args.skip_size:
         paths = all_paths[: args.size_max_images] if args.size_max_images else all_paths
-        rows += eval_by_size(model, paths, label_dir, args)
+        rows += eval_by_size(model, paths, label_dir, args, tmp_dir)
 
     with open(out_dir / "group_metrics.csv", "w", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(f, fieldnames=FIELDS)
