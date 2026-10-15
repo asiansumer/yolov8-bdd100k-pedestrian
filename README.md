@@ -1,18 +1,18 @@
-# Pedestrian Detection on BDD100K: Revisiting a YOLOv8 Size Comparison
+# YOLOv8 Pedestrian Detection on BDD100K (s / m / l)
 
 [中文版](README_zh.md)
 
-In 2025 I published a conference paper comparing YOLOv8s/m/l for pedestrian detection on BDD100K. The original experiments were trained for only 10 epochs under a tight deadline. This repo rebuilds that study from scratch as a reproducible pipeline, trains each model properly, and breaks the results down by lighting, weather, crowd density and object size.
+In 2025 I published a conference paper comparing YOLOv8s/m/l for pedestrian detection on BDD100K. At the time I was also preparing my graduation thesis defence and other lab work, so the models were only trained for 10 epochs. In this repo I redid the whole study: 30 epochs for every model, and the results split by lighting, weather, crowd density and object size.
 
-**Short version:** with full training, every model beats the paper's numbers by a wide margin, the paper's odd v8m result disappears, and the main weakness turns out to be small, distant pedestrians rather than night-time driving.
+The results were better than I expected. All three models beat the numbers in the paper by a clear margin, and the strange v8m result from the paper did not show up again. After splitting the results, the biggest problem turned out to be small pedestrians far away. Night-time made less difference than I thought it would.
 
 ## Key findings
 
-1. **The paper underestimated all three models.** mAP50 rose by 0.12 (v8s), 0.07 (v8m) and 0.02 (v8l). Even at epoch 10 of the new runs, v8s and v8m were already well above the paper's 10-epoch results, so training length alone does not explain the gap (see [What changed](#what-changed-compared-with-the-paper)).
-2. **The paper's v8m anomaly is gone.** In the paper, v8m had a *lower* mAP50-95 than v8s (0.249 vs 0.263). Here the ordering is s < m < l on every metric.
-3. **v8m is the best trade-off.** Going from s to m costs 16% throughput for +0.037 mAP50. Going from m to l costs another 9% and 70% more parameters for only +0.015.
-4. **Small objects are the real bottleneck.** AP50 on small pedestrians (< 32×32 px) is 0.41–0.48, against 0.93–0.95 on large ones. The day/night gap is about 0.06.
-5. **"Clear weather performs worse than overcast" is a confounding artefact.** 61% of images labelled *clear* are night-time images (cloud cover is not visible at night), while only 1.5% of *overcast* images are. Lighting, not weather, explains the difference.
+1. The paper underestimated all three models. mAP50 went up by 0.12, 0.07 and 0.02 (s, m, l). When I did a first smoke test on my laptop with 10% of the data and 1 epoch, mAP50 was already 0.487, close to the paper's 0.534 after 10 epochs, and I thought something in my code was wrong. Comparing the logs later, the new runs were already well ahead at epoch 10, so the gap is not only about training longer (see [What changed](#what-changed-compared-with-the-paper)).
+2. In the paper, v8m had a lower mAP50-95 than v8s (0.249 vs 0.263). This time the order is normal: s < m < l.
+3. If I had to pick one model for a car, I would pick v8m. s to m costs 16% speed for +0.037 mAP50; m to l costs another 9% speed and 70% more parameters for only +0.015.
+4. Small pedestrians (under 32×32 px) are detected badly: AP50 is only 0.41 to 0.48, while large ones are above 0.93. Day vs night is only about 0.06.
+5. When I grouped by weather, *clear* scored lower than *overcast*, which confused me at first. A cross-check of weather against time of day showed that 61% of *clear* images were taken at night (you can't see clouds at night), compared with 1.5% of *overcast* images. So *clear* scores lower mostly because it has more night images, not because of the weather.
 
 ## Results
 
@@ -65,12 +65,12 @@ mAP50 per group. Full tables, including mAP50-95 and recall: [`reports/eval_*/gr
 
 Groups with fewer than 20 images (e.g. *foggy*, 13 images) are skipped, and the *undefined* time-of-day group (7 pedestrians) is too small to interpret.
 
-**What the breakdown shows**
+**Some observations**
 
-- **Night costs about 0.06 mAP50 for every model.** A bigger model raises night and day performance by about the same amount; it does not close the gap. The training set is also imbalanced: night images are 40% of the data but contain only 21% of the pedestrian boxes.
-- **Weather groups are confounded with time of day.** Clear-weather images are 61% night, overcast and partly-cloudy images are under 2% night. Rain is the one condition that scores lowest even though it has fewer small objects than average, so it likely has a genuine effect (reflections, blur).
-- **Crowds are detected but localised less precisely.** Crowded scenes score slightly higher on mAP50 but lower on mAP50-95 (v8l: 0.368 vs 0.394), consistent with occlusion making box boundaries ambiguous.
-- **Small objects dominate the error budget.** They are 48% of all pedestrians. Inputs are downscaled from 1280×720 to 640 px, so a 30 px pedestrian becomes about 15 px. Larger models help (+16% from s to l), but the gap to large objects remains huge.
+- All three models lose about 0.06 mAP50 at night. A bigger model improves day and night by about the same amount, so the gap stays. The training set is also unbalanced: night images are 40% of the data but only 21% of the pedestrian boxes.
+- Weather and time of day are mixed together (see finding 5). Rain is a bit different: it has fewer small objects than average but still scores lowest of all weather types, so reflections and blur probably do matter.
+- Crowded scenes score a bit higher on mAP50 but lower on mAP50-95 (v8l: 0.368 vs 0.394). My reading is that the model finds people in crowds but the boxes are less accurate because people block each other.
+- Small objects are 48% of all pedestrians. The input is resized from 1280×720 to 640 px, so a 30 px tall pedestrian becomes about 15 px. Going from s to l improves small-object AP50 by 16%, but it is still far behind large objects.
 
 ## What changed compared with the paper
 
@@ -135,11 +135,11 @@ reports/                 All result tables and figures in this README
 
 ## Limitations
 
-- **Single run per model.** No repeated seeds, so differences of about 0.01 mAP should not be over-interpreted.
-- **No ablation.** The contribution of mosaic vs learning-rate schedule vs epochs is not isolated.
-- **Small groups are noisy.** Rain (822 pedestrians) and dawn/dusk (1,046) are much smaller than daytime (9,366). Fog could not be evaluated.
-- **Different hardware from the paper**, so FPS is only comparable within this repo.
-- **Different data copy and conversion code** from the paper, which may also contribute to the difference.
+- Each model was trained once, with no repeated seeds, so differences around 0.01 don't mean much.
+- I did not run an ablation, so I can't say how much mosaic, the learning-rate schedule and the number of epochs each contributed.
+- Some groups are small: rain has 822 pedestrians and dawn/dusk 1,046, compared with 9,366 for daytime. There were too few fog images to evaluate.
+- The hardware is different from the paper, so FPS can only be compared within this repo.
+- The data copy and conversion code are also different from the paper, which could affect the results too.
 
 ## Next steps
 
