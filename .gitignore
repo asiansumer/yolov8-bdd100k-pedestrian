@@ -28,3 +28,7 @@ __pycache__/
 .DS_Store
 .vscode/
 .idea/
+
+# ===== 日志 (训练日志动辄上百 MB, 只在本地保存) =====
+logs/
+*.log

@@ -1,0 +1,15 @@
+模型: runs/v8s_final/weights/best.pt  设备: 0  图片数: 500  batch=1
+端到端 FPS: 101.6  (平均 9.8 ms/张)
+  平均 preprocess: 1.0 ms
+  平均 inference: 5.1 ms
+  平均 postprocess: 0.7 ms
+模型: runs/v8m_e30/weights/best.pt  设备: 0  图片数: 500  batch=1
+端到端 FPS: 85.1  (平均 11.8 ms/张)
+  平均 preprocess: 1.0 ms
+  平均 inference: 6.9 ms
+  平均 postprocess: 0.8 ms
+模型: runs/v8l_e30/weights/best.pt  设备: 0  图片数: 500  batch=1
+端到端 FPS: 77.5  (平均 12.9 ms/张)
+  平均 preprocess: 1.0 ms
+  平均 inference: 8.1 ms
+  平均 postprocess: 0.7 ms
